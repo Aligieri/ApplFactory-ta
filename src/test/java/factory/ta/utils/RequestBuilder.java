@@ -11,12 +11,11 @@ import java.io.IOException;
 
 
 public class RequestBuilder {
-    private static final Logger logger = LogManager.getLogger("AllureLogs");
+    private static final Logger logger = LogManager.getLogger("logs");
 
     @Step("Sending request")
-    public static HttpResponse execute(HttpUriRequest request) throws IOException, InterruptedException {
+    public static HttpResponse execute(HttpUriRequest request) throws IOException {
         HttpResponse response = HttpClientBuilder.create().build().execute(request);
-        Thread.sleep(2000);
         logger.info("Request " + request.toString() + " sent");
         Allure.addAttachment("Raw response", "application/json", response.toString());
         return response;

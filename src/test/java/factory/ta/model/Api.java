@@ -4,7 +4,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import static factory.ta.conf.Constants.*;
 
-public class ApiSchema {
+public class Api {
 
     public static HttpUriRequest getNewSerialIdForFactory(String factoryID){
         return new HttpGet(API_URI + "lambda?factoryId=" + factoryID);
@@ -14,10 +14,10 @@ public class ApiSchema {
     }
 
     public static HttpUriRequest getAppIdAndStatus(String token){
-        return new HttpGet(API_URI + "service?requestToken=" + token);
+        return new HttpGet(API_URI + "service?requestToken=" + token.replace("\"", ""));
     }
 
-    public static HttpUriRequest startProcess(){
+    public static HttpUriRequest processRequests(){
         return new HttpGet(API_URI + "process");
     }
 

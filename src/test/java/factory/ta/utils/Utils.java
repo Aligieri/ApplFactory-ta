@@ -1,8 +1,7 @@
 package factory.ta.utils;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import factory.ta.model.ResponseJson;
 import io.qameta.allure.Allure;
 import io.qameta.allure.Step;
 import io.restassured.internal.support.FileReader;
@@ -10,9 +9,8 @@ import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
-
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.util.Arrays;
 
 
 public class Utils {
@@ -22,9 +20,9 @@ public class Utils {
         return FileReader.readToString(file, "UTF-8");
     }
 
-    public static ResponseJson httpResponseToJson(HttpResponse response_1) throws IOException {
+    public static JsonNode httpResponseToJson(HttpResponse response) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(Utils.toString(response_1), new TypeReference<ResponseJson>(){});
+        return  mapper.readTree(Utils.convertStreamToString(response.getEntity().getContent()));
     }
 
     @Step("Reading response body")
@@ -39,5 +37,39 @@ public class Utils {
         Allure.addAttachment("Actual result: ", "application/json", actual.toString());
         Allure.addAttachment("Expected result: ", "application/json", matcher.toString());
         MatcherAssert.assertThat(reason, actual, matcher);
+    }
+
+    public static String convertStreamToString(InputStream is) {
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        StringBuilder sb = new StringBuilder();
+
+        String line;
+        try {
+            while ((line = reader.readLine()) != null) {
+                sb.append(line).append("\n");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                is.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return sb.toString();
+    }
+
+    @Step("Sequence verification")
+    public static boolean isSequence(int[] set) {
+        int[] arr = Arrays.copyOf(set, set.length);
+        Arrays.sort(arr);
+        for (int i = 0; i < arr.length - 1; i++) {
+            if (arr[i] + 1 != arr[i + 1]) {
+                return false;
+            }
+        }
+        return true;
     }
 }
