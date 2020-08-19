@@ -2,7 +2,6 @@ package factory.ta.spec;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import factory.ta.model.Api;
-import org.apache.http.HttpStatus;
 import org.testng.annotations.Test;
 import org.apache.http.HttpResponse;
 import java.io.IOException;
@@ -130,63 +129,4 @@ public class FactoryTests extends CommonTest {
                 equalTo("provisioned"));
     }
 
-    @Test(description = "Factory response verification")
-    public void validFactoryResponse() throws IOException {
-        //Given
-        HttpResponse response_1 = execute(Api.getNewSerialIdForFactory("100"));
-        execute(Api.processRequests());
-        String token_1 = Utils.httpResponseToJson(response_1).get("token").asText();
-
-        //When
-        HttpResponse appId_1 = execute(Api.getAppIdAndStatus(token_1));
-        execute(Api.processRequests());
-        JsonNode bodyAppId_1 = Utils.httpResponseToJson(appId_1);
-
-        //Then
-        assertThat("First valid request for factory_1 ID is appl100_1",
-                appId_1.getStatusLine().getStatusCode(),
-                equalTo(HttpStatus.SC_OK));
-        assertThat("First valid request for factory_1 ID is appl100_1",
-                bodyAppId_1.get("id").asText(),
-                equalTo("appl100_1"));
-        assertThat("First valid request for factory_1 status is provisioned",
-                bodyAppId_1.get("status").asText(),
-                equalTo("provisioned"));
-    }
-
-    @Test(description = "Factory receive sequential ID's")
-    public void idIsSequentialForOneFactory() throws IOException {
-        //Given
-        HttpResponse response_1 = execute(Api.getNewSerialIdForFactory("123"));
-        HttpResponse response_2 = execute(Api.getNewSerialIdForFactory("123"));
-        HttpResponse response_3 = execute(Api.getNewSerialIdForFactory("123"));
-
-        execute(Api.processRequests());
-
-        String token_1 = Utils.httpResponseToJson(response_1).get("token").asText();
-        String token_2 = Utils.httpResponseToJson(response_2).get("token").asText();
-        String token_3 = Utils.httpResponseToJson(response_3).get("token").asText();
-
-        //When
-        HttpResponse appId_1 = execute(Api.getAppIdAndStatus(token_1));
-        HttpResponse appId_2 = execute(Api.getAppIdAndStatus(token_2));
-        HttpResponse appId_3 = execute(Api.getAppIdAndStatus(token_3));
-
-        execute(Api.processRequests());
-
-        JsonNode bodyAppId_1 = Utils.httpResponseToJson(appId_1);
-        JsonNode bodyAppId_2 = Utils.httpResponseToJson(appId_2);
-        JsonNode bodyAppId_3 = Utils.httpResponseToJson(appId_3);
-
-        int id_1 = Integer.parseInt(bodyAppId_1.get("id").asText().replace("appl123_", ""));
-        int id_2 = Integer.parseInt(bodyAppId_2.get("id").asText().replace("appl123_", ""));
-        int id_3 = Integer.parseInt(bodyAppId_3.get("id").asText().replace("appl123_", ""));
-
-        int[] ids = {id_1, id_2, id_3};
-
-        //Then
-        assertThat("ID numbers are sequential",
-                Utils.isSequence(ids),
-                equalTo(true));
-    }
 }

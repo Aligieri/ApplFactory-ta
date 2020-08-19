@@ -13,6 +13,10 @@ public class Api {
         return new HttpGet(API_URI + "lambda?factoryId=" + factoryID + "&toBeGap=true");
     }
 
+    public static HttpUriRequest getFailureIdForFactory(String factoryID){
+        return new HttpGet(API_URI + "lambda?factoryId=" + factoryID + "&toBeFailed=true");
+    }
+
     public static HttpUriRequest getAppIdAndStatus(String token){
         return new HttpGet(API_URI + "service?requestToken=" + token.replace("\"", ""));
     }

@@ -34,9 +34,13 @@ public class Utils {
 
     @Step("Asserting results")
     public static <T> void assertThat(String reason, T actual, Matcher<? super T> matcher){
-        Allure.addAttachment("Actual result: ", "application/json", actual.toString());
-        Allure.addAttachment("Expected result: ", "application/json", matcher.toString());
-        MatcherAssert.assertThat(reason, actual, matcher);
+        try {
+            Allure.addAttachment("Actual result: ", "application/json", actual.toString());
+            Allure.addAttachment("Expected result: ", "application/json", matcher.toString());
+            MatcherAssert.assertThat(reason, actual, matcher);
+        }catch (NullPointerException e){
+            Allure.addAttachment("Exception: ", "application/json", e.toString());
+        }
     }
 
     public static String convertStreamToString(InputStream is) {
